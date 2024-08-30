@@ -5,7 +5,8 @@ import { initialCards } from './cards';
 import { createCard, deleteCard, likeCard} from '../src/components/card.js';
 import {openPopup,closePopup,openImagePopap,handleFormAddCardSubmit} from '../src/components/modal.js'
 
-
+const avatarImage = new URL('../images/avatar.jpg', import.meta.url);
+const avatar ={ name: 'avatar', link: avatarImage}
 const cardContainer = document.querySelector('.places__list'); 
   initialCards.forEach(cardContent => {
       const cardElement = createCard(cardContent, deleteCard, likeCard, openImagePopap);
