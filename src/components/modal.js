@@ -1,5 +1,5 @@
 
-import { formAddNewCard, openImagePopap} from '../../scripts/index.js';
+import { openImagePopap} from '../../scripts/index.js';
 import { createCard, deleteCard, likeCard } from './card.js';
 
 export function closePopup(popup) {
@@ -28,15 +28,4 @@ function handleCloseEscapePress(event) {
 
 
 
-export function handleFormAddCardSubmit(evt, cardContainer, popupNewCard) {
-  evt.preventDefault();
-  const namePlace = formAddNewCard.querySelector('.popup__input_type_card-name');
-  const inputURL = formAddNewCard.querySelector('.popup__input_type_url');
-  const newCard = {
-    name: namePlace.value,
-    link: inputURL.value,
-  };
-  const cardElement = createCard(newCard, deleteCard, likeCard, openImagePopap);
-  cardContainer.prepend(cardElement);
-  closePopup(popupNewCard);
-}
+

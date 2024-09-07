@@ -25,3 +25,14 @@
     line-height: 17px;
   }
 }
+
+.button_inactive{
+ border: 1px solid rgba(0,0,0,.2);
+ color: rgba(0,0,0,.2);
+ background-color:white;
+}
+
+.button_inactive:hover{
+  background: white;
+  cursor: default;
+}
