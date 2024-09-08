@@ -98,7 +98,6 @@ export const getProfile = () => {
 }
 
 export const getInitialCards = () => {
-    console.log('get cards')
     return fetch(getConfigCards.baseUrl,{
         headers:getConfigCards.headers
     })
@@ -175,7 +174,6 @@ export const likeRequestCard = (cardId,method)=>{
         headers: likeConfigCard.headers,
     })
     .then(res => {
-        console.log(method)
         if (!res.ok) {
           throw new Error(`Ошибка: ${res.status}`);
         }

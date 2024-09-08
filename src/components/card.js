@@ -18,7 +18,6 @@ export function createCard(cardContent, deleteCardCallback,likeCardCallback, ope
     if(userId !==cardContent.owner._id){
       deleteButton.style.display = 'none';
     }
-    console.log(isLikedCard(cardContent,userId))
     if(isLikedCard(cardContent,userId) ==true){
 
       likeButton.classList.add('card__like-button_is-active')
