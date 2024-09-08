@@ -1,10 +1,10 @@
 
 
 import '../pages/index.css';
-import { createCard,likeCard} from '../src/components/card.js';
+import { createCard} from '../src/components/card.js';
 import {openPopup,closePopup} from '../src/components/modal.js'
 import {enableValidation,hideInputError} from '../src/components/validation.js'
-import {getProfile,getInitialCards,patchEditProfile, postNewCard,deleteRequestCard,likeRequestCard} from '../src/components/api.js'
+import {getProfile,getInitialCards,patchEditProfile, postNewCard,deleteRequestCard,likeRequestCard,patchEditProfileImage} from '../src/components/api.js'
 
 
 const cardContainer = document.querySelector('.places__list'); 
@@ -44,6 +44,7 @@ const popupAddNewCard = document.querySelector('.profile__add-button');
 const imagePopupTemplate = document.querySelector('.popup_type_image')
 const popupEditImageProfile = document.querySelector('.popup_type_update-avatar')
 
+const profileImageForm =  document.forms['update-avatar']
 const profileFormEdit = document.forms['edit-profile']
 const nameInput = profileFormEdit.querySelector(".popup__input_type_name")
 const jobInput =profileFormEdit.querySelector('.popup__input_type_description')
@@ -56,15 +57,45 @@ imagePopupTemplate.classList.add('popup_is-animated')
 const profileName = document.querySelector('.profile__title')
 const profileDescription = document.querySelector('.profile__description')
 const profileImage = document.querySelector('.profile__image')
+const inputProfileImage = profileImageForm.querySelector('.popup__input_type_avatar-url')
 
 export {formAddNewCard,profileName,profileDescription}
 
 const closeButtons = document.querySelectorAll('.popup__close');
-///////////////////////////////////////////////////////////////
-profileImage.addEventListener('click',()=>{
 
+profileImage.addEventListener('click',()=>{
+  clearFormFealds(popupEditImageProfile)
+  
+  hideInputError(profileImageForm,inputProfileImage)
+  enableValidation(profileImageForm);
   openPopup(popupEditImageProfile,closePopup)
 })
+
+function renderLoading (form ,isLoading){
+  const saveButton = form.querySelector('.popup__button')
+  if(isLoading){
+    saveButton.textContent = 'Сохранение...'
+
+  }else{
+     saveButton.textContent = 'Сохранить'
+  }
+}
+
+profileImageForm.addEventListener('submit',(evt)=>{
+  evt.preventDefault();
+  renderLoading(profileImageForm,true)
+  patchEditProfileImage(inputProfileImage.value)
+  .then(() => {
+    cardContainer.innerHTML = ''; 
+    return getProfileAndCard();
+  })
+  .finally(()=>{
+    renderLoading(profileImageForm,false)
+  })
+
+  closePopup(popupEditImageProfile)
+})
+
 closeButtons.forEach((button) => {
     button.addEventListener('click', (event) => {
         const popup = event.target.closest('.popup');
@@ -74,16 +105,21 @@ closeButtons.forEach((button) => {
 
 profileFormEdit.addEventListener('submit',(evt)=>{
   evt.preventDefault();
+  renderLoading(profileFormEdit,true)
   // 
   profileName.textContent = nameInput.value
   profileDescription.textContent =jobInput.value
   // 
   patchEditProfile(profileName.textContent,profileDescription.textContent)
+  .finally(()=>{
+    renderLoading(profileFormEdit,false)
+  })
   closePopup(popupTypeEdit)
 });
 
 formAddNewCard.addEventListener('submit',()=>{
   handleFormAddCardSubmit(event,cardContainer,popupTypeNewCard)
+
 });
 
 popupAddNewCard.addEventListener('click',()=>{
@@ -123,6 +159,7 @@ export function openImagePopap(popup) {
 
 function handleFormAddCardSubmit(evt, cardContainer, popupNewCard) {
   evt.preventDefault();
+  renderLoading(formAddNewCard,true)
   const namePlace = formAddNewCard.querySelector('.popup__input_type_card-name');
   const inputURL = formAddNewCard.querySelector('.popup__input_type_url');
   postNewCard(namePlace.value, inputURL.value)
@@ -132,7 +169,10 @@ function handleFormAddCardSubmit(evt, cardContainer, popupNewCard) {
   })
   .catch(error => {
     console.error('Произошла ошибка при добавлении или загрузке карточек:', error);
-  });
+  })
+  .finally(()=>{
+    renderLoading(formAddNewCard,false)
+  })
   closePopup(popupNewCard);
 }
     
