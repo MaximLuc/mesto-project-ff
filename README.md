@@ -1,2 +1,2 @@
 # Проектная работа Mesto
-https://github.com/MaximLuc/mesto-project-ff.git
+https://MaximLuc.github.io/mesto-project-ff
