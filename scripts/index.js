@@ -3,7 +3,7 @@
 import '../pages/index.css';
 import { createCard} from '../src/components/card.js';
 import {openPopup,closePopup} from '../src/components/modal.js'
-import {enableValidation,hideInputError} from '../src/components/validation.js'
+import {enableValidation,hideInputError,updateSubmitButtonState} from '../src/components/validation.js'
 import {getProfile,getInitialCards,patchEditProfile, postNewCard,deleteRequestCard,likeRequestCard,patchEditProfileImage} from '../src/components/api.js'
 
 const validationConfig = {
@@ -15,7 +15,11 @@ const validationConfig = {
   errorClass: "form__input-error_active",
 };
 
+
+enableValidation(validationConfig);
+
 const cardContainer = document.querySelector('.places__list'); 
+
 function showCards(cardsData,userId){
   const cardContainer = document.querySelector('.places__list'); 
     cardsData.forEach(cardContent => {
@@ -24,7 +28,7 @@ function showCards(cardsData,userId){
     });
 }
 
-export function getProfileAndCard(){
+function getProfileAndCard(){
   Promise.all([getProfile(), getInitialCards()])
     .then(([userData, cardsData]) => {
       const divElement = document.querySelector('.profile__image');
@@ -67,16 +71,14 @@ const profileDescription = document.querySelector('.profile__description')
 const profileImage = document.querySelector('.profile__image')
 const inputProfileImage = profileImageForm.querySelector('.popup__input_type_avatar-url')
 
-export {formAddNewCard,profileName,profileDescription}
-
 const closeButtons = document.querySelectorAll('.popup__close');
 
 profileImage.addEventListener('click',()=>{
   clearFormFealds(popupEditImageProfile)
   
   hideInputError(profileImageForm,inputProfileImage,validationConfig)
-  enableValidation(profileImageForm,validationConfig);
-  openPopup(popupEditImageProfile,closePopup)
+  updateSubmitButtonState(profileImageForm, validationConfig);
+  openPopup(popupEditImageProfile)
 })
 
 function renderLoading (form ,isLoading){
@@ -93,15 +95,16 @@ profileImageForm.addEventListener('submit',(evt)=>{
   evt.preventDefault();
   renderLoading(profileImageForm,true)
   patchEditProfileImage(inputProfileImage.value)
-  .then(() => {
-    cardContainer.innerHTML = ''; 
-    return getProfileAndCard();
-  })
-  .finally(()=>{
-    renderLoading(profileImageForm,false)
-  })
-
-  closePopup(popupEditImageProfile)
+    .then(() => {
+      profileImage.style.backgroundImage = `url(${inputProfileImage.value})`;
+      closePopup(popupEditImageProfile);
+    })
+    .catch((error) => {
+      console.error('Ошибка при обновлении аватара:', error);
+    })
+    .finally(() => {
+      renderLoading(profileImageForm, false);
+    });
 })
 
 closeButtons.forEach((button) => {
@@ -114,20 +117,23 @@ closeButtons.forEach((button) => {
 profileFormEdit.addEventListener('submit',(evt)=>{
   evt.preventDefault();
   renderLoading(profileFormEdit,true)
-  // 
-  profileName.textContent = nameInput.value
-  profileDescription.textContent =jobInput.value
-  // 
-  patchEditProfile(profileName.textContent,profileDescription.textContent)
-  .finally(()=>{
-    renderLoading(profileFormEdit,false)
-  })
-  closePopup(popupTypeEdit)
+
+  patchEditProfile(nameInput.value, jobInput.value)
+    .then(() => {
+      profileName.textContent = nameInput.value;
+      profileDescription.textContent = jobInput.value;
+      closePopup(popupTypeEdit);
+    })
+    .catch((error) => {
+      console.error('Ошибка при редактировании профиля:', error);
+    })
+    .finally(() => {
+      renderLoading(profileFormEdit, false);
+    });
 });
 
 formAddNewCard.addEventListener('submit',()=>{
   handleFormAddCardSubmit(event,cardContainer,popupTypeNewCard)
-
 });
 
 popupAddNewCard.addEventListener('click',()=>{
@@ -136,8 +142,10 @@ popupAddNewCard.addEventListener('click',()=>{
   const cardUrl = formAddNewCard.querySelector('.popup__input_type_url ')
   hideInputError(formAddNewCard,cardName,validationConfig)
   hideInputError(formAddNewCard,cardUrl,validationConfig)
-  enableValidation(formAddNewCard,validationConfig);
-  openPopup(popupTypeNewCard,closePopup)
+
+  updateSubmitButtonState(formAddNewCard, validationConfig);
+
+  openPopup(popupTypeNewCard)
 })
 
 profileEditButton.addEventListener('click',()=>{
@@ -147,12 +155,11 @@ profileEditButton.addEventListener('click',()=>{
   clearFormFealds(popupTypeEdit)
   nameInput.value = profileName.textContent
   jobInput.value = profileDescription.textContent
-
-  enableValidation(profileFormEdit,validationConfig);
-  openPopup(popupTypeEdit,closePopup)
+  updateSubmitButtonState(profileFormEdit, validationConfig);
+  openPopup(popupTypeEdit)
 })
 
-  export function openImagePopap(popup) {
+function openImagePopap(popup) {
   const imagePopupTemplate = document.querySelector('.popup_type_image');
   const popupImage = imagePopupTemplate.querySelector('.popup__image');
   const popupCaption = imagePopupTemplate.querySelector('.popup__caption');
@@ -167,21 +174,30 @@ profileEditButton.addEventListener('click',()=>{
 
 function handleFormAddCardSubmit(evt, cardContainer, popupNewCard) {
   evt.preventDefault();
-  renderLoading(formAddNewCard,true)
+  renderLoading(formAddNewCard, true);
+  
   const namePlace = formAddNewCard.querySelector('.popup__input_type_card-name');
   const inputURL = formAddNewCard.querySelector('.popup__input_type_url');
+
   postNewCard(namePlace.value, inputURL.value)
-  .then(() => {
-    cardContainer.innerHTML = ''; 
-    return getProfileAndCard();
-  })
-  .catch(error => {
-    console.error('Произошла ошибка при добавлении или загрузке карточек:', error);
-  })
-  .finally(()=>{
-    renderLoading(formAddNewCard,false)
-  })
-  closePopup(popupNewCard);
+    .then((newCardData) => {
+
+      const newCardElement = createCard(
+        newCardData, 
+        deleteRequestCard, 
+        likeRequestCard, 
+        openImagePopap, 
+        newCardData.owner._id 
+      )
+      cardContainer.prepend(newCardElement); 
+      closePopup(popupNewCard);
+    })
+    .catch((error) => {
+      console.error('Произошла ошибка при добавлении карточки:', error);
+    })
+    .finally(() => {
+      renderLoading(formAddNewCard, false);
+    });
 }
     
 
