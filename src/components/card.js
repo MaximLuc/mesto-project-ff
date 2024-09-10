@@ -33,18 +33,29 @@ export function createCard(cardContent, deleteCardCallback,likeCardCallback, ope
         });
     });
 
-    likeButton.addEventListener('click',()=>{
-      
-      likeButton.classList.toggle('card__like-button_is-active')
-      if(likeButton.classList.contains('card__like-button_is-active')){
-        cardLikes.textContent =  Number(cardLikes.textContent) + 1
-        likeCardCallback(cardId,'PUT')
+    likeButton.addEventListener('click', () => {
+      if (!likeButton.classList.contains('card__like-button_is-active')) {
+        likeCardCallback(cardId, 'PUT')
+          .then((arrLike) => {
+            likeButton.classList.add('card__like-button_is-active');
+            cardLikes.textContent = arrLike.likes.length;
+
+          })
+          .catch((error) => {
+            console.error('Ошибка при добавлении лайка:', error);
+          });
+      } else {
+        likeCardCallback(cardId, 'DELETE')
+          .then((arrLike) => {
+            likeButton.classList.remove('card__like-button_is-active');
+            cardLikes.textContent = arrLike.likes.length;
+
+          })
+          .catch((error) => {
+            console.error('Ошибка при удалении лайка:', error);
+          });
       }
-      else{
-        cardLikes.textContent = Number(cardLikes.textContent) - 1
-        likeCardCallback(cardId,'DELETE')
-      }
-    })
+    });
 
     cardImage.addEventListener('click',()=>{
 

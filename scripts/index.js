@@ -6,6 +6,14 @@ import {openPopup,closePopup} from '../src/components/modal.js'
 import {enableValidation,hideInputError} from '../src/components/validation.js'
 import {getProfile,getInitialCards,patchEditProfile, postNewCard,deleteRequestCard,likeRequestCard,patchEditProfileImage} from '../src/components/api.js'
 
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "button_inactive",
+  inputErrorClass: "form__input_type_error",
+  errorClass: "form__input-error_active",
+};
 
 const cardContainer = document.querySelector('.places__list'); 
 function showCards(cardsData,userId){
@@ -66,8 +74,8 @@ const closeButtons = document.querySelectorAll('.popup__close');
 profileImage.addEventListener('click',()=>{
   clearFormFealds(popupEditImageProfile)
   
-  hideInputError(profileImageForm,inputProfileImage)
-  enableValidation(profileImageForm);
+  hideInputError(profileImageForm,inputProfileImage,validationConfig)
+  enableValidation(profileImageForm,validationConfig);
   openPopup(popupEditImageProfile,closePopup)
 })
 
@@ -126,25 +134,25 @@ popupAddNewCard.addEventListener('click',()=>{
   clearFormFealds(popupTypeNewCard)
   const cardName = formAddNewCard.querySelector('.popup__input_type_card-name') 
   const cardUrl = formAddNewCard.querySelector('.popup__input_type_url ')
-  hideInputError(formAddNewCard,cardName)
-  hideInputError(formAddNewCard,cardUrl)
-  enableValidation(formAddNewCard);
+  hideInputError(formAddNewCard,cardName,validationConfig)
+  hideInputError(formAddNewCard,cardUrl,validationConfig)
+  enableValidation(formAddNewCard,validationConfig);
   openPopup(popupTypeNewCard,closePopup)
 })
 
 profileEditButton.addEventListener('click',()=>{
-  hideInputError(profileFormEdit,nameInput)
-  hideInputError(profileFormEdit,jobInput)
+  hideInputError(profileFormEdit,nameInput,validationConfig)
+  hideInputError(profileFormEdit,jobInput,validationConfig)
 
   clearFormFealds(popupTypeEdit)
   nameInput.value = profileName.textContent
   jobInput.value = profileDescription.textContent
 
-  enableValidation(profileFormEdit);
+  enableValidation(profileFormEdit,validationConfig);
   openPopup(popupTypeEdit,closePopup)
 })
 
-export function openImagePopap(popup) {
+  export function openImagePopap(popup) {
   const imagePopupTemplate = document.querySelector('.popup_type_image');
   const popupImage = imagePopupTemplate.querySelector('.popup__image');
   const popupCaption = imagePopupTemplate.querySelector('.popup__caption');

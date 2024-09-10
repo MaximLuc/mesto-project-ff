@@ -1,7 +1,4 @@
 
-import { openImagePopap} from '../../scripts/index.js';
-import { createCard, deleteCard, likeCard } from './card.js';
-
 export function closePopup(popup) {
   popup.classList.remove('popup_is-opened');
   document.removeEventListener('keydown', handleCloseEscapePress);
